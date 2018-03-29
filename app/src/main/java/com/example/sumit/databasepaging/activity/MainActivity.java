@@ -1,19 +1,12 @@
 package com.example.sumit.databasepaging.activity;
 
-import android.arch.persistence.room.Room;
-import android.content.Context;
-import android.support.annotation.NonNull;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 
 import com.example.sumit.databasepaging.R;
 import com.example.sumit.databasepaging.fragments.PageListFragment;
-
-import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
