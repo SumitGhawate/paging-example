@@ -1,7 +1,9 @@
 package com.example.sumit.databasepaging.adapter;
 
+import android.arch.paging.PagedListAdapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,12 +15,15 @@ import com.example.sumit.databasepaging.models.User;
 
 import java.util.List;
 
-public class PagingAdapter extends RecyclerView.Adapter< PagingAdapter.UserItemViewHolder> {
+public class PagingAdapter extends PagedListAdapter<User, PagingAdapter.UserItemViewHolder> {
+
     private Context context;
     private List<User> users;
-    public PagingAdapter(Context context, List<User> users) {
+
+    public PagingAdapter(Context context) {
+        super(DIFF_CALLBACK);
         this.context = context;
-        this.users = users;
+        //this.users = users;
     }
 
     @NonNull
@@ -31,15 +36,15 @@ public class PagingAdapter extends RecyclerView.Adapter< PagingAdapter.UserItemV
 
     @Override
     public void onBindViewHolder(UserItemViewHolder holder, int position) {
-        User user= getItem(position);
-        if(user!=null) {
+        User user = getItem(position);
+        if (user != null) {
             holder.bindTo(user);
         }
     }
 
-    private User getItem(int position) {
+    /*private User getItem(int position) {
         return users.get(position);
-    }
+    }*/
 
     static class UserItemViewHolder extends RecyclerView.ViewHolder {
         TextView userName, userId;
@@ -55,9 +60,10 @@ public class PagingAdapter extends RecyclerView.Adapter< PagingAdapter.UserItemV
             userId.setText(String.valueOf(user.userId));
         }
     }
+
     @Override
     public int getItemCount() {
-        return users.size();
+        return super.getItemCount();
     }
 
     @Override
@@ -65,4 +71,20 @@ public class PagingAdapter extends RecyclerView.Adapter< PagingAdapter.UserItemV
         return super.getItemViewType(position);
     }
 
+    public static final DiffUtil.ItemCallback<User> DIFF_CALLBACK =
+            new DiffUtil.ItemCallback<User>() {
+                @Override
+                public boolean areItemsTheSame(@NonNull User oldUser, @NonNull User newUser) {
+                    // User properties may have changed if reloaded from the DB, but ID is fixed
+                    return oldUser.getUserId() == newUser.getUserId();
+                }
+
+                @Override
+                public boolean areContentsTheSame(@NonNull User oldUser, @NonNull User newUser) {
+                    // NOTE: if you use equals, your object must properly override Object#equals()
+                    // Incorrectly returning false here will result in too many animations.
+                    return oldUser.equals(newUser);
+                }
+
+            };
 }

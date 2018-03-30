@@ -2,6 +2,8 @@ package com.example.sumit.databasepaging.fragments;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
+import android.arch.paging.AsyncPagedListDiffer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,6 +20,7 @@ import com.example.sumit.databasepaging.adapter.PagingAdapter;
 import com.example.sumit.databasepaging.api.GitHubApi;
 import com.example.sumit.databasepaging.database.AppDatabase;
 import com.example.sumit.databasepaging.models.User;
+import com.example.sumit.databasepaging.models.UserViewModel;
 import com.google.gson.Gson;
 
 import java.util.List;
@@ -31,6 +34,7 @@ public class PageListFragment extends Fragment {
     //private static final String TAG = "com.example.sumit.PageListFragment";
     private AppDatabase appDatabase;
     private RecyclerView recyclerView;
+    private UserViewModel viewModel;
 
     @Nullable
     @Override
@@ -40,21 +44,29 @@ public class PageListFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        appDatabase = AppDatabase.getDatabase(getContext());
         updateData(1, 20);
+        appDatabase = AppDatabase.getDatabase(getContext());
+        viewModel = new UserViewModel(appDatabase.userDao());//ViewModelProviders.of(this).get(UserViewModel.class);
+
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         setListToAdapter();
     }
 
     private void setListToAdapter() {
-        LiveData<List<User>> liveData = appDatabase.userDao().getAllUsers();
+        //AsyncPagedListDiffer<User> adapter;
+
+        final PagingAdapter adapter = new PagingAdapter(getActivity());
+        viewModel.usersList.observe(this, pagedList -> adapter.submitList(pagedList));
+
+        recyclerView.setAdapter(adapter);
+        /*LiveData<List<User>> liveData = appDatabase.userDao().getAllUsers();
         liveData.observeForever(new Observer<List<User>>() {
             @Override
             public void onChanged(@Nullable List<User> users) {
                 recyclerView.setAdapter(new PagingAdapter(getActivity(), users));
             }
-        });
+        });*/
     }
 
     private void updateData(long pages, int perPage) {

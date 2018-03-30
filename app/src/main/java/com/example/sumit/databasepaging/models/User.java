@@ -40,4 +40,12 @@ public class User {
 
         return user.userId == this.userId && user.firstName == this.firstName;
     }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
 }
