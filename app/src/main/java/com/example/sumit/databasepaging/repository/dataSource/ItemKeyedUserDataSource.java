@@ -81,7 +81,35 @@ public class ItemKeyedUserDataSource extends ItemKeyedDataSource<Long, User> {
 
     @Override
     public void loadAfter(@NonNull LoadParams<Long> params, @NonNull LoadCallback<User> callback) {
+        Log.i(TAG, "Loading Rang " + params.key + " Count " + params.requestedLoadSize);
+        List<User> gitHubUser = new ArrayList();
+        afterParams = params;
 
+        networkState.postValue(NetworkState.LOADING);
+        gitHubService.getUser(params.key, params.requestedLoadSize).enqueue(new Callback<List<User>>() {
+            @Override
+            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+                if (response.isSuccessful()) {
+                    gitHubUser.addAll(response.body());
+                    callback.onResult(gitHubUser);
+                    networkState.postValue(NetworkState.LOADED);
+                    afterParams = null;
+                } else {
+                    networkState.postValue(new NetworkState(Status.FAILED, response.message()));
+                    Log.e("API CALL", response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<User>> call, Throwable t) {
+                String errorMessage;
+                errorMessage = t.getMessage();
+                if (t == null) {
+                    errorMessage = "unknown error";
+                }
+                networkState.postValue(new NetworkState(Status.FAILED, errorMessage));
+            }
+        });
     }
 
     @Override
@@ -92,6 +120,6 @@ public class ItemKeyedUserDataSource extends ItemKeyedDataSource<Long, User> {
     @NonNull
     @Override
     public Long getKey(@NonNull User item) {
-        return null;
+        return item.getUserId();
     }
 }

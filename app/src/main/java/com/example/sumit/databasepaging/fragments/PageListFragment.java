@@ -44,10 +44,10 @@ public class PageListFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        updateData(1, 20);
+        updateData(1, 60);
         appDatabase = AppDatabase.getDatabase(getContext());
-        viewModel = new UserViewModel(appDatabase.userDao());//ViewModelProviders.of(this).get(UserViewModel.class);
-
+        viewModel = ViewModelProviders.of(this).get(UserViewModel.class);
+        viewModel.init(appDatabase.userDao());
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         setListToAdapter();
